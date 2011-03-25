@@ -21,7 +21,9 @@ raise "Must be run from Xcode" unless ENV['XCODE_VERSION_ACTUAL']
 GIT = "/opt/local/bin/git"
 PRODUCT_PLIST = File.join(ENV['BUILT_PRODUCTS_DIR'], ENV['INFOPLIST_PATH'])
 REVISION = `#{GIT} log --pretty=format:'' | wc -l`.scan(/\d/).to_s
+HASH = `#{GIT} rev-parse HEAD`
 BUNDLE_VERSION = "CFBundleVersion"
+
 
 if File.file?(PRODUCT_PLIST) and REVISION
   
@@ -30,6 +32,7 @@ if File.file?(PRODUCT_PLIST) and REVISION
   info = Plist::parse_xml(PRODUCT_PLIST)
   if info
     info[BUNDLE_VERSION] = REVISION
+    info["GCGitCommitHash"] = HASH
     info.save_plist(PRODUCT_PLIST)
   end
   `/usr/bin/plutil -convert binary1 \"#{PRODUCT_PLIST}\"`
