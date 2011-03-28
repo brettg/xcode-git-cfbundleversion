@@ -32,7 +32,7 @@ if File.file?(PRODUCT_PLIST) and REVISION
   info = Plist::parse_xml(PRODUCT_PLIST)
   if info
     info[BUNDLE_VERSION] = REVISION
-    info["GCGitCommitHash"] = HASH
+    info["GCGitCommitHash"] = HASH.strip!
     info.save_plist(PRODUCT_PLIST)
   end
   `/usr/bin/plutil -convert binary1 \"#{PRODUCT_PLIST}\"`
