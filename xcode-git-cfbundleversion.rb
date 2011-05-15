@@ -22,6 +22,7 @@ GIT = "/usr/bin/git"
 PRODUCT_PLIST = File.join(ENV['BUILT_PRODUCTS_DIR'], ENV['INFOPLIST_PATH'])
 REVISION = `#{GIT} log --pretty=format:'' | wc -l`.scan(/\d/).to_s
 HASH = `#{GIT} rev-parse HEAD`
+SHORT_BUNDLE_VERSION = "CFBundleShortVersionString"
 BUNDLE_VERSION = "CFBundleVersion"
 
 if File.file?(PRODUCT_PLIST) and REVISION
@@ -30,13 +31,13 @@ if File.file?(PRODUCT_PLIST) and REVISION
   `/usr/bin/plutil -convert xml1 \"#{PRODUCT_PLIST}\"`
   info = Plist::parse_xml(PRODUCT_PLIST)
   if info
-    info[BUNDLE_VERSION] = REVISION
+    info[BUNDLE_VERSION] = [info[SHORT_BUNDLE_VERSION], REVISION].join('.')
     info["GCGitCommitHash"] = HASH.strip!
     info.save_plist(PRODUCT_PLIST)
   end
   `/usr/bin/plutil -convert binary1 \"#{PRODUCT_PLIST}\"`
   
   # log
-  puts "updated #{BUNDLE_VERSION} to #{REVISION}"
+  puts "updated #{BUNDLE_VERSION} to #{info[BUNDLE_VERSION]}"
   
 end
